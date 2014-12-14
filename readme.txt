@@ -27,6 +27,7 @@ If using the Software Licensing add-on, the following information is shown as we
 - Active sites, with a link to deactivate the license for the given site.
 
 **How to install and configure**
+
 Have a look at the [installation instructions](https://wordpress.org/plugins/edd-helpscout/installation/).
 
 **More information**
@@ -35,22 +36,37 @@ Have a look at the [installation instructions](https://wordpress.org/plugins/edd
 - Other [WordPress plugins](https://dannyvankooten.com/wordpress-plugins/#utm_source=wp-plugin-repo&utm_medium=link&utm_campaign=more-info-link) by [Danny van Kooten](https://dannyvankooten.com#utm_source=wp-plugin-repo&utm_medium=link&utm_campaign=more-info-link)
 - [@DannyvanKooten](https://twitter.com/dannyvankooten) on Twitter
 
-
 == Installation ==
 
 To get this up an running, you'll need to configure a few things in WordPress and HelpScout.
 
-##### WordPress
-1. Upload the contents of `edd-helpscout.zip` to your plugins directory, which usually is `/wp-content/plugins/`.
-1. Activate the `Easy Digital Downloads integration for HelpScout` plugin
-1. Set the `HELPSCOUT_SECRET_KEY` constant in your `wp-config.php` file. This should be a random string of 40 characters.
+= WordPress =
 
-##### HelpScout
+1. Upload the contents of **edd-helpscout.zip** to your plugins directory, which usually is `/wp-content/plugins/`.
+1. Activate the **HelpScout integration for Easy Digital Downloads** plugin
+1. Set the **HELPSCOUT_SECRET_KEY** constant in your `/wp-config.php` file. This should be a random string of 40 characters.
+
+
+_Example_
+`
+define( 'HELPSCOUT_SECRET_KEY', 'ueCQWKbZ48BT6UGmCFbaqXtbLaDZu1v6rnBLZjKD' );
+`
+
+= HelpScout =
 
 1. Go to the [HelpScout custom app interface](https://secure.helpscout.net/apps/custom/).
-1. Set the App Name to `Easy Digital Downloads` and set the **Content Type** to *Dynamic Content*.
-1. Enter your WordPress Site URL as the Callback Url. The plugin will automatically detect HelpScout requests to this URL and generate a proper response.
-1. Enter the `HELPSCOUT_SECRET_KEY` constant value in the Secret Key field.
+1. Enter the following settings.
+
+**App Name:** Easy Digital Downloads<br />
+**Content Type:** Dynamic Content<br />
+**Callback URL:** http://url-to-your-wordpress.com/ _(I recommend using HTTPS)_ <br />
+**Secret Key:** The value of your **HELPSCOUT_SECRET_KEY** constant.
+
+== Frequently Asked Questions ==
+
+= HelpScout just shows "Invalid Signature" =
+
+Make sure the "Secret Key" setting for your HelpScout application matches the value of your `HELPSCOUT_SECRET_KEY` constant. This key is used to authorize requests coming from HelpScout.
 
 == Screenshots ==
 
