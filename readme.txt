@@ -57,10 +57,14 @@ define( 'HELPSCOUT_SECRET_KEY', 'ueCQWKbZ48BT6UGmCFbaqXtbLaDZu1v6rnBLZjKD' );
 1. Go to the [HelpScout custom app interface](https://secure.helpscout.net/apps/custom/).
 1. Enter the following settings.
 
-**App Name:** Easy Digital Downloads<br />
-**Content Type:** Dynamic Content<br />
-**Callback URL:** https://your-site.com/edd-hs-api/customer-data.json _(I recommend using HTTPS)_ <br />
+**App Name:** Easy Digital Downloads
+
+**Content Type:** Dynamic Content
+
+**Callback URL:** https://your-site.com/edd-hs-api/customer-data.json _(I recommend using HTTPS)_
+
 **Secret Key:** The value of your **HELPSCOUT_SECRET_KEY** constant.
+
 
 == Frequently Asked Questions ==
 
@@ -94,7 +98,7 @@ Make sure the "Secret Key" setting for your HelpScout application matches the va
 
 - Added "renewal" label to renewals
 
-= 1.0 =
-Initial release.
+= 1.0.2 =
 
+Plugin now uses a single URL endpoint to use as the HelpScout App Callback URL.
 
