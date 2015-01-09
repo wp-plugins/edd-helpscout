@@ -59,7 +59,7 @@ define( 'HELPSCOUT_SECRET_KEY', 'ueCQWKbZ48BT6UGmCFbaqXtbLaDZu1v6rnBLZjKD' );
 
 **App Name:** Easy Digital Downloads<br />
 **Content Type:** Dynamic Content<br />
-**Callback URL:** http://url-to-your-wordpress.com/ _(I recommend using HTTPS)_ <br />
+**Callback URL:** https://your-site.com/edd-hs-api/customer-data.json _(I recommend using HTTPS)_ <br />
 **Secret Key:** The value of your **HELPSCOUT_SECRET_KEY** constant.
 
 == Frequently Asked Questions ==
@@ -73,6 +73,12 @@ Make sure the "Secret Key" setting for your HelpScout application matches the va
 1. Purchases and other information related to the customer is shown in the bottom right corner of your HelpScout interface.
 
 == Changelog ==
+
+= 1.0.2 =
+
+**Improvements**
+
+- The plugin used to "listen" to all requests to the site. It will now (after confirmation) only listen to requests to `/edd-hs-api/customer-data.json`.
 
 = 1.0.1 =
 
