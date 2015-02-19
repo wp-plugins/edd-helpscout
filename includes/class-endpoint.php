@@ -105,6 +105,8 @@ class EDD_HS_Endpoint {
 			$emails = array( $customer_data['email'] );
 		}
 
+		$emails = apply_filters( 'helpscout_edd_customer_emails', $emails, $this->data );
+
 		if( count( $emails ) === 0 ) {
 			$this->respond( 'No customer email given.' );
 		}
@@ -121,12 +123,12 @@ class EDD_HS_Endpoint {
 
 		global $wpdb;
 
+		$emails = rtrim( implode( "','", $this->customer_emails ), ",'" );
 		// query by email(s)
 		$sql   = "SELECT p.ID, p.post_status, p.post_date FROM {$wpdb->posts} p, {$wpdb->postmeta} pm WHERE pm.meta_key = '_edd_payment_user_email'";
-		$sql .= " AND pm.meta_value IN(%s) AND p.ID = pm.post_id GROUP BY p.ID  ORDER BY p.ID DESC";
+		$sql .= " AND pm.meta_value IN('$emails') AND p.ID = pm.post_id GROUP BY p.ID  ORDER BY p.ID DESC";
 
-		$query = $wpdb->prepare( $sql, rtrim( implode( ',', $this->customer_emails ), ',' ) );
-		$results = $wpdb->get_results( $query );
+		$results = $wpdb->get_results( $sql );
 
 		if( is_array( $results ) ) {
 			return $results;
@@ -190,10 +192,16 @@ class EDD_HS_Endpoint {
 						if ( is_object( $license ) ) {
 
 							$license_key = get_post_meta( $license->ID, '_edd_sl_key', true );
+							$license_expires = get_post_meta( $license->ID, '_edd_sl_expiration', true );
+							$license_status_html = '';
+
+							if( $license_expires < time() ) {
+								$license_status_html = ' <span style="color:orange; font-weight:bold;">expired</span>';
+							}
 
 							// add link to manage_sites for this license
 							$manage_license_url = admin_url( 'edit.php?post_type=download&page=edd-licenses&s=' . $license_key );
-							$download_details .= '<br /><a href="' . $manage_license_url . '">' . $license_key . '</a>';
+							$download_details .= '<br /><a href="' . $manage_license_url . '">' . $license_key . '</a>' . $license_status_html;
 
 							// get active sites for this license
 							$sites = $edd_sl->get_sites( $license->ID );
@@ -213,8 +221,12 @@ class EDD_HS_Endpoint {
 										'license_id' => (string) $license->ID,
 										'site_url'   => $site,
 									);
-									$request = new EDD_HS_Request( $args );
-									$download_details .= '<li><a href="' . esc_attr( $site ) . '" target="_blank">' . esc_html( $site ) . '</a> <a href="' . esc_url( $request->get_signed_admin_url() ) . '" target="_blank"><small>(deactivate)</small></a></li>';
+									$request   = new EDD_HS_Request( $args );
+									$site_href = $site;
+									if ( strpos( $site, 'http' ) !== 0 ) {
+										$site_href = 'http://' . $site;
+									}
+									$download_details .= '<li><a href="' . esc_url( $site_href ) . '" target="_blank">' . esc_html( $site ) . '</a> <a href="' . esc_url( $request->get_signed_admin_url() ) . '" target="_blank"><small>(deactivate)</small></a></li>';
 								}
 
 								$download_details .= '</ul>';

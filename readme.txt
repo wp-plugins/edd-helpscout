@@ -3,8 +3,8 @@ Contributors: DvanKooten
 Donate link: https://dannyvankooten.com/donate/
 Tags: easy-digital-downloads,helpscout,edd,support,help scout
 Requires at least: 3.8
-Tested up to: 4.1
-Stable tag: 1.0.2
+Tested up to: 4.1.1
+Stable tag: 1.0.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -57,14 +57,10 @@ define( 'HELPSCOUT_SECRET_KEY', 'ueCQWKbZ48BT6UGmCFbaqXtbLaDZu1v6rnBLZjKD' );
 1. Go to the [HelpScout custom app interface](https://secure.helpscout.net/apps/custom/).
 1. Enter the following settings.
 
-**App Name:** Easy Digital Downloads
-
-**Content Type:** Dynamic Content
-
-**Callback URL:** https://your-site.com/edd-hs-api/customer-data.json _(I recommend using HTTPS)_
-
+**App Name:** Easy Digital Downloads<br />
+**Content Type:** Dynamic Content<br />
+**Callback URL:** https://your-site.com/edd-hs-api/customer-data.json _(I recommend using HTTPS)_ <br />
 **Secret Key:** The value of your **HELPSCOUT_SECRET_KEY** constant.
-
 
 == Frequently Asked Questions ==
 
@@ -77,6 +73,19 @@ Make sure the "Secret Key" setting for your HelpScout application matches the va
 1. Purchases and other information related to the customer is shown in the bottom right corner of your HelpScout interface.
 
 == Changelog ==
+
+= 1.0.3 =
+
+**Fixes**
+
+- Added protocol for links to active sites
+- Querying payments by multiple emails was not working
+
+**Additions**
+
+- When using EDD Software Licensing, show if a license is expired.
+- Added `helpscout_edd_customer_emails` hook to filter customer emails
+
 
 = 1.0.2 =
 
@@ -98,7 +107,7 @@ Make sure the "Secret Key" setting for your HelpScout application matches the va
 
 - Added "renewal" label to renewals
 
-= 1.0.2 =
+= 1.0 =
+Initial release.
 
-Plugin now uses a single URL endpoint to use as the HelpScout App Callback URL.
 
