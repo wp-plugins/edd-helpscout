@@ -1,9 +1,9 @@
 <?php
 /*
 Plugin Name: Easy Digital Downloads integration for HelpScout
-Plugin URI: https://dannyvankooten.com/helpscout-edd
+Plugin URI: https://dannyvankooten.com/
 Description: Easy Digital Downloads integration for HelpScout
-Version: 1.0.3
+Version: 1.1
 Author: Danny van Kooten
 Author URI: https://dannyvankooten.com
 Text Domain: edd-helpscout
@@ -11,7 +11,7 @@ Domain Path: /languages
 License: GPL v3
 
 Easy Digital Downloads integration for HelpScout
-Copyright (C) 2012-2013, Danny van Kooten, hi@dannyvankooten.com
+Copyright (C) 2013-2015, Danny van Kooten, hi@dannyvankooten.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -27,6 +27,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+namespace EDD\HelpScout;
+
 // Prevent direct file access
 if ( ! defined( 'ABSPATH' ) ) {
 	header( 'Status: 403 Forbidden' );
@@ -34,41 +36,43 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-class EDD_HS {
+class Plugin {
 
 	/**
 	 * @const VERSION
 	 */
-	const VERSION = "1.0.3";
+	const VERSION = "1.1";
 
 	/**
 	 * @const FILE
 	 */
 	const FILE = __FILE__;
 
-
 	/**
 	 * Constructor
 	 */
 	public function __construct() {
+	}
 
-		// do nothing if EDD is not activated
-		if( ! class_exists( 'Easy_Digital_Downloads', false ) ) {
-			return;
-		}
+	/**
+	 * Add hooks
+	 */
+	public function add_hooks() {
+		add_action( 'init', array( $this, 'listen' ) );
+	}
 
-		// register autoloader
-		spl_autoload_register( array( $this, 'autoload' ) );
+	/**
+	 * Initialise the rest of the plugin
+	 */
+	public function listen() {
 
 		// if this is a HelpScout Request, load the Endpoint class
 		if ( $this->is_helpscout_request() && ! is_admin() ) {
-			new EDD_HS_Endpoint();
+			new Endpoint();
 		}
 
 		if ( defined( 'DOING_AJAX' ) && DOING_AJAX ) {
-			new EDD_HS_Ajax();
-		} elseif( is_admin() ) {
-			new EDD_HS_Admin();
+			new AJAX();
 		}
 	}
 
@@ -79,62 +83,70 @@ class EDD_HS {
 	 */
 	private function is_helpscout_request() {
 
-		$trigger = stristr( $_SERVER['REQUEST_URI'], '/edd-hs-api/customer-data.json' ) !== false;
+		/**
+		 * @since 1.1
+		 */
+		$trigger = stristr( $_SERVER['REQUEST_URI'], '/edd-helpscout/api' ) !== false;
 
-		if( ! $trigger && isset( $_SERVER['HTTP_X_HELPSCOUT_SIGNATURE'] ) ) {
+		if( ! $trigger ) {
+			/**
+			 * @deprecated 1.1
+			 * @use `/edd-helpscout/api` instead
+			 */
+			$trigger = stristr( $_SERVER['REQUEST_URI'], '/edd-hs-api/customer-data.json' ) !== false;
 
-			$greedy = get_option( 'edd_hs_greedy_listening', 1 );
+			// if trigger is not set but signature is, it might be that user is coming from old version (with greedy listening)
+			if( ! $trigger && isset( $_SERVER['HTTP_X_HELPSCOUT_SIGNATURE'] ) ) {
 
-			if( $greedy ) {
-				$trigger = true;
+				$greedy = get_option( 'edd_hs_greedy_listening', 1 );
+
+				if( $greedy ) {
+					$trigger = true;
+				}
 			}
 		}
 
-		return (bool) apply_filters( 'edd_hs/is_helpscout_request', $trigger );
-	}
+		/**
+		 * @deprecated 1.1
+		 * @use edd_helpscout_is_helpscout_request
+		 */
+		$trigger = (bool) apply_filters( 'edd_hs/is_helpscout_request', $trigger );
 
-	/**
-	 * @param string $class
-	 *
-	 * @return bool
-	 */
-	public function autoload( $class ) {
-
-		// only act on classnames with this prefix
-		if( strpos( $class, 'EDD_HS_' ) !== 0 ) {
-			return false;
-		}
-
-		$filename = dirname( __FILE__ ) . '/includes/class-' . strtolower( substr( $class, 7 ) ) . '.php';
-
-		if( file_exists( $filename ) ) {
-			require_once( $filename );
-			return true;
-		}
-
-		return false;
+		/**
+		 * Filter so you can set the plugin to trigger at your own URL endpoint
+		 *
+		 * @since 1.1
+		 */
+		return (bool) apply_filters( 'edd_helpscout_is_helpscout_request', $trigger );
 	}
 
 }
 
 /**
- * Initiate the EDD_HS class
+ * Bootstrap the plugin at `plugins_loaded` (after EDD)
  */
-function __load_edd_helpscout() {
-	new EDD_HS;
-}
+add_action( 'plugins_loaded', function() {
+	// do nothing if EDD is not activated
+	if( ! class_exists( 'Easy_Digital_Downloads' ) ) {
+		return;
+	}
 
-/**
- * Disable greedy listening for new plugin users
- */
-function edd_hs_disable_greedy_listening() {
-	update_option( 'edd_hs_greedy_listening', 0 );
-}
+	// Load autoloader
+	require __DIR__ . '/vendor/autoload.php';
+
+	// Register activation hook
+	register_activation_hook( __FILE__, array( 'EDD_HelpScout\\Admin', 'plugin_activation' ) );
+
+	// Instantiate plugin
+	$plugin = new Plugin();
+	$plugin->add_hooks();
+
+	// Load Admin stuff
+	if( is_admin() && ( ! defined( 'DOING_AJAX' ) || ! DOING_AJAX ) ) {
+		$admin = new Admin();
+		$admin->add_hooks();
+	}
+}, 90 );
 
 
-// Instantiate the plugin on a later hook
-add_action( 'plugins_loaded', '__load_edd_helpscout', 90 );
-
-// Register activation hook
-register_activation_hook( __FILE__, 'edd_hs_disable_greedy_listening' );
 
