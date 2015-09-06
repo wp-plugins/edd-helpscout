@@ -30,7 +30,7 @@ If using the Software Licensing add-on, the following information is shown as we
 
 Have a look at the [installation instructions](https://wordpress.org/plugins/edd-helpscout/installation/).
 
-> Please note that this plugin requires HP 5.3 or higher.
+> Please note that this plugin requires PHP 5.3 or higher.
 
 **More information**
 
